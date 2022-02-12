@@ -1,0 +1,11 @@
+//for add new data to postgresql database
+
+from .... import ...
+
+app = create_app()
+app.app_context().push()
+db.create_all()
+user = User(username='peter', email='peter@gmail.com', password='WkQa')
+db.session.add(user)
+db.session.commit()
+
