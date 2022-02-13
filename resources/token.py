@@ -41,6 +41,9 @@ class TokenResource(Resource):
             print('burdayim', type(jsonify({'message': 'username or password is incorrect'})))
             return make_response(jsonify({'message': 'username or password is incorrect'}), HTTPStatus.UNAUTHORIZED)
 
+        #if user.is_active is False:
+            #return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
+
         print('hoppallaa')
         access_token = create_access_token(identity=user.id, fresh=True)
         refresh_token = create_refresh_token(identity=user.id)

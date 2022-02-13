@@ -1,8 +1,9 @@
 import requests
+from config import api_url
 
 
 class MailgunApi:
-    API_URL = 'https://api.mailgun.net/v3/{}/messages'
+    API_URL = api_url
 
     def __init__(self, domain, api_key):
         self.domain = domain
