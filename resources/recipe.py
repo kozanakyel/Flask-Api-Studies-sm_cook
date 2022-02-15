@@ -72,7 +72,7 @@ class RecipeResource(Resource):
 
     @jwt_required
     def patch(self, recipe_id):
-        print('burdayim 1')
+
         json_data = request.get_json()
         print('burdayim 1')
 
