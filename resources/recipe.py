@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import get_jwt_identity, jwt_required, jwt_optional
 from http import HTTPStatus
-
+#WkQad19
 from models.recipe import Recipe
 from schemas.recipe import RecipeSchema
 
@@ -62,8 +62,9 @@ class RecipeResource(Resource):
 
     @jwt_required
     def patch(self, recipe_id):
-
+        print('burdayim 1')
         json_data = request.get_json()
+        print('burdayim 1')
 
         data, errors = recipe_schema.load(data=json_data, partial=('name',))
 
