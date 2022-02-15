@@ -17,10 +17,11 @@ recipe_pagination_schema = RecipePaginationSchema()
 
 class RecipeListResource(Resource):
 
-    @use_kwargs({'page': fields.Int(missing=1), 'per_page': fields.Int(missing=20)})
-    def get(self, page, per_page):
-
-        paginated_recipes = Recipe.get_all_published(page, per_page)
+    @use_kwargs({'q': fields.Str(missing=''),
+                 'page': fields.Int(missing=1),
+                 'per_page': fields.Int(missing=20)})
+    def get(self, q, page, per_page):
+        paginated_recipes = Recipe.get_all_published(q, page, per_page)
 
         return recipe_pagination_schema.dump(paginated_recipes).data, HTTPStatus.OK
 

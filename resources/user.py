@@ -16,7 +16,7 @@ from webargs.flaskparser import use_kwargs
 from models.recipe import Recipe
 from models.user import User
 
-from schemas.recipe import RecipeSchema
+from schemas.recipe import RecipeSchema, RecipePaginationSchema
 from schemas.user import UserSchema
 
 from config import mailgun_domain, mailgun_api_key
@@ -27,6 +27,8 @@ from extensions import image_set
 recipe_list_schema = RecipeSchema(many=True)
 user_schema = UserSchema()
 user_public_schema = UserSchema(exclude=('email',))
+
+recipe_pagination_schema = RecipePaginationSchema()
 
 mailgun = MailgunApi(domain=mailgun_domain, api_key=mailgun_api_key)
 
@@ -148,8 +150,8 @@ class UserResource(Resource):
 class UserRecipeListResource(Resource):
 
     @jwt_optional
-    @use_kwargs({'visibility': fields.Str(missing='public')})
-    def get(self, username, visibility):
+    @use_kwargs({'page': fields.Int(missing=1), 'per_page': fields.Int(missing=10), 'visibility': fields.Str(missing='public')})
+    def get(self, username, page, per_page, visibility):
 
         user = User.get_by_username(username=username)
 
@@ -163,6 +165,6 @@ class UserRecipeListResource(Resource):
         else:
             visibility = 'public'
 
-        recipes = Recipe.get_all_by_user(user_id=user.id, visibility=visibility)
+        paginated_recipes = Recipe.get_all_by_user(user_id=user.id, page=page, per_page=per_page, visibility=visibility)
 
-        return recipe_list_schema.dump(recipes).data, HTTPStatus.OK
+        return recipe_pagination_schema.dump(paginated_recipes).data, HTTPStatus.OK
