@@ -6,17 +6,23 @@ from http import HTTPStatus
 from models.recipe import Recipe
 from schemas.recipe import RecipeSchema
 
+from webargs import fields
+from webargs.flaskparser import use_kwargs
+from schemas.recipe import RecipeSchema, RecipePaginationSchema
+
 recipe_schema = RecipeSchema()
 recipe_list_schema = RecipeSchema(many=True)
+recipe_pagination_schema = RecipePaginationSchema()
 
 
 class RecipeListResource(Resource):
 
-    def get(self):
+    @use_kwargs({'page': fields.Int(missing=1), 'per_page': fields.Int(missing=20)})
+    def get(self, page, per_page):
 
-        recipes = Recipe.get_all_published()
+        paginated_recipes = Recipe.get_all_published(page, per_page)
 
-        return recipe_list_schema.dump(recipes).data, HTTPStatus.OK
+        return recipe_pagination_schema.dump(paginated_recipes).data, HTTPStatus.OK
 
     @jwt_required
     def post(self):
