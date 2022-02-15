@@ -1,3 +1,5 @@
+import os.path
+
 from flask import request, url_for, render_template
 from mailgun import MailgunApi
 from flask import jsonify
@@ -18,6 +20,9 @@ from schemas.recipe import RecipeSchema
 from schemas.user import UserSchema
 
 from config import mailgun_domain, mailgun_api_key
+from utils import save_image
+from extensions import image_set
+
 
 recipe_list_schema = RecipeSchema(many=True)
 user_schema = UserSchema()
@@ -25,6 +30,35 @@ user_public_schema = UserSchema(exclude=('email',))
 
 mailgun = MailgunApi(domain=mailgun_domain, api_key=mailgun_api_key)
 
+user_avatar_schema = UserSchema(only=('avatar_url', ))
+
+class UserAvatarUploadResource(Resource):
+
+    @jwt_required
+    def put(self):
+
+        file = request.files.get('avatar')
+        print('malez')
+
+        if not file:
+            return {'message': 'Not a valid image'}, HTTPStatus.BAD_REQUEST
+
+        if not image_set.file_allowed(file, file.filename):
+            return {'message': 'File type not allowed'}, HTTPStatus.BAD_REQUEST
+
+        user = User.get_by_id(id=get_jwt_identity())
+
+        if user.avatar_image:
+            avatar_path = image_set.path(folder='avatars', filename=user.avatar_image)
+            if os.path.exists(avatar_path):
+                os.remove(avatar_path)
+
+        filename = save_image(image=file, folder='avatars')
+
+        user.avatar_image = filename
+        user.save()
+
+        return user_avatar_schema.dump(user).data, HTTPStatus.OK
 
 class MeResource(Resource):
     @jwt_required
